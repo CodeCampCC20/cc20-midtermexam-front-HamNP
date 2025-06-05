@@ -1,69 +1,82 @@
-import { useState } from 'react'
 
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import TodoList from "../components/Todo";
 
+function MyTodo() {
+  const [input, setInput] = useState()
+  const [todo, setTodo] = useState([])
 
-function MyToDo() {
-  
-  const [todos, setTodos] = useState([])
-  const [input, setInput] = useState("")
-
-  const addTodo = () => {
-    if(input.trim()){
-      setTodos([...todos, {id: Date.now(), text: input, completed: false}])
-      setInput("")
+  function hdlChange(e) {
+    setInput ( {taskName: e.target.value,userId: 15} )
+  }
+  const hdlClick = async() =>  {
+    try {
+      const res = await axios.post ("http://cc20-todo-midterm-env.eba-fi9p2pds.ap-southeast-1.elasticbeanstalk.com/api/V1/todos",input)
+      console.log(res.data)
+      setTodo([...todo, res.data.todo])
+    } catch (error) {
+      console.log(error)
     }
   }
-  
+  const fetchData = async() => {
+    const res = await axios.get("http://cc20-todo-midterm-env.eba-fi9p2pds.ap-southeast-1.elasticbeanstalk.com/api/V1/todos/15")
+    console.log(res.data)
+    setTodo(res.data.todos)
+  }
+  useEffect(() => {
+    fetchData()
+  },[])
+  console.log(input)
+  console.log(todo)
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await axios.delete(`http://cc20-todo-midterm-env.eba-fi9p2pds.ap-southeast-1.elasticbeanstalk.com/api/V1/todos/${id}/15`)
+      fetchData()
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
 
   return (
-    <div className='min-h-screen flex flex-col justify-center items-center'>
-    <div className='h-120 w-200 bg-gray-500 shadow-lg rounded-3xl flex flex-col gap-10 justify-center items-center'>
-      <h1 className='text-white text-6xl'>My Todo</h1>
-      <div>
-        <input
-        type="text"
-        name=""
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        className='h-15 w-170 text-3xl border-b pl-6' placeholder='new task'/>
-      <button
-      onClick={addTodo}
-      className='h-15 w-20 bg-gray-500 text-white text-2xl rounded-3xl cursor-pointer hover:underline'>Add</button>
-      </div>
+    <div className="flex items-center justify-center">
+      <div className="shadow-lg rounded-3xl p-16 bg-gray-600">
+        <h1 className="text-3xl font-bold text-center text-white mb-6">
+         Todo List
+        </h1>
+        <div  className="mb-4 flex">
+          <input 
+            onChange={hdlChange}
+            type="text"
+            placeholder="Yours todo"
+            className="flex-grow px-3 py-2 border rounded-l-lg focus:outline-none
+          focus:ring-2 focus:ring-gray-500 bg-white"
+          />
+          <button
+            className="bg-gray-400 text-white px-4 py-2 rounded-r-lg
+          hover:bg-gray-600"
+          onClick={hdlClick}
+          >
+            Add
+          </button>
+        </div>
+        <ul>
+        {todo.map((item) => (
+                <TodoList
+                  key={item.id}
+                  id={item.id}
+                  input={item}
+                  handleDelete={handleDelete}
+                />
+              ))}
 
-      <ul>
-        {
-          todos.map((todo) => (
-            <li key={todo.id}
-            className='flex items-center gap-20'>
-              <input type="checkbox"
-              checked={todo.completed}
-              onChange={() => setTodos(
-                todos.map((t) => (
-                  t.id === todo.id ? {...t, completed: !t.completed} : t
-                ))
-              )}
-              className='h-10 w-10'
-              />
-              <p className={`flex-grow text-white text-4xl ${todo.completed ? "line-through text-gray-500" : "text-gray-800"}`}>{todo.text}</p>
-
-              <button onClick={() => setTodos(todos.filter((t) => t.id !== todo.id))}
-                className="text-white text-3xl cursor-pointer hover:underline">
-                X
-              </button>
-            </li>
-          ))
-        }
-      </ul>
-
-      <div>
-        
-      </div>
-      <div></div>
-      <div></div>
+        </ul>
+        <ul className="space-y-2"></ul>{" "}
+      </div>{" "}
     </div>
-    </div>
-  )
+  );
 }
 
-export default MyToDo
+export default MyTodo;

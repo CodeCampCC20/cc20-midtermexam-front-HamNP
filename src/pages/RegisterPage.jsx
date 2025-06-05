@@ -1,6 +1,6 @@
 import { useState } from "react";
 import InputForm from "../components/form/InputForm";
-import { schemaLogin } from "../validate/schemaLogin";
+import { schemaRegister } from "../validate/schemaRegister";
 import yupValidate from "../validate/yupValidate";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
@@ -33,20 +33,20 @@ function LoginPage() {
   
       console.log("input", input);
       try {
-        await schemaLogin.validate(input, { abortEarly: false });
+        await schemaRegister.validate(input, { abortEarly: false });
 
-        const res = await todoApi.login(input);
+        const res = await todoApi.register(input);
         console.log("res.data",res.data)
 
   
-        navigate("/login");
+        navigate("/");
         setInput(initialInput);
         setInputError(initialInput);
   
-        toast.success("Log In Success");
+        toast.success("Register Success");
       } catch (err) {
         console.log(err);
-        toast.error("Log In invalid");
+        toast.error("Register invalid");
   
         if (err instanceof Yup.ValidationError) {
           const errorYup = yupValidate(err);
@@ -98,7 +98,7 @@ function LoginPage() {
           type="submit"
         >
           {isLoading && <Loader className="animate-spin" />}
-          {isLoading ? "Loading..." : "LOG IN"}
+          {isLoading ? "Loading..." : "Register"}
         </button>
       </form>
     </div>
